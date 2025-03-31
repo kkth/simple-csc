@@ -1,6 +1,7 @@
 import time
 import re
 import torch
+import torch_npu
 import streamlit as st
 
 from lmcsc import LMCorrector
@@ -46,7 +47,7 @@ escape_dict = {
 oom_error = False
 
 reSPLIT = re.compile(
-    "(?:(?![。！？!?，,])(?<=[。！？!?，,])(?![!！?？”】]))|(?<=(?:[。！？!?，,])[”】])|(?<=[\n\r])"
+    "(?:(?![。！？!?，,])(?<=[。！？!?，,])(?![!！?？"】]))|(?<=(?:[。！？!?，,])["]】])|(?<=[\n\r])"
 )
 
 
@@ -144,7 +145,7 @@ def correct_sentences(obversed_text, prompt, lmcsc_model):
             stream_preds = lmcsc_model(sentence, prompt_context, stream=True)
             for new_text in stream_preds:
                 if isinstance(new_text, Exception):
-                    if isinstance(new_text, torch.cuda.OutOfMemoryError):
+                    if isinstance(new_text, (torch.cuda.OutOfMemoryError, torch_npu.npu.OutOfMemoryError)):
                         oom_error = True
                         break
                     else:

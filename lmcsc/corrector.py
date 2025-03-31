@@ -2,6 +2,7 @@ from threading import Thread
 from typing import List, Tuple, Union
 from queue import Queue
 import torch
+import torch_npu
 
 import yaml
 
@@ -320,7 +321,7 @@ class LMCorrector:
         def thread_target():
             try:
                 self.model.process_reward_beam_search(**generation_kwargs)
-            except torch.cuda.OutOfMemoryError as e:
+            except (torch.cuda.OutOfMemoryError, torch_npu.npu.OutOfMemoryError) as e:
                 error_queue.put(e)
                 streamer.end()
             except Exception as e:

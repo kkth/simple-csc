@@ -354,14 +354,25 @@ class Alignment:
 class measure_cuda_memory:
     def __init__(self, device=None):
         self.device = device
+        self.device_type = device.type if device is not None else None
 
     def current_memory_usage(self) -> float:
         # Returns the current memory usage in bytes for the current device
-        mem = torch.cuda.max_memory_allocated(self.device)
+        if self.device_type == 'cuda':
+            mem = torch.cuda.max_memory_allocated(self.device)
+        elif self.device_type == 'npu':
+            import torch_npu
+            mem = torch_npu.npu.max_memory_allocated(self.device)
+        else:
+            mem = 0
         return mem
     
     def __enter__(self):
-        torch.cuda.reset_peak_memory_stats(self.device)
+        if self.device_type == 'cuda':
+            torch.cuda.reset_peak_memory_stats(self.device)
+        elif self.device_type == 'npu':
+            import torch_npu
+            torch_npu.npu.reset_peak_memory_stats(self.device)
         self.initial_memory = self.current_memory_usage()
         return self
     
@@ -371,5 +382,9 @@ class measure_cuda_memory:
 
         # For garbage collection
         for _ in range(10):
-            torch.cuda.empty_cache()
+            if self.device_type == 'cuda':
+                torch.cuda.empty_cache()
+            elif self.device_type == 'npu':
+                import torch_npu
+                torch_npu.npu.empty_cache()
         gc.collect()

@@ -48,6 +48,9 @@ async def lifespan(app: FastAPI):
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
+    elif hasattr(torch, 'npu') and torch.npu.is_available():
+        import torch_npu
+        torch_npu.npu.empty_cache()
 
 app = FastAPI(lifespan=lifespan)
 

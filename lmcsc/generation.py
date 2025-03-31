@@ -116,7 +116,7 @@ def distortion_probs_to_cuda_jit(
     _token_indices: List[int], 
     _distortion_probs: torch.Tensor) -> torch.Tensor:
     """
-    Transfers distortion probabilities to a CUDA tensor.
+    Transfers distortion probabilities to a CUDA/NPU tensor.
 
     Args:
         template_tensor (torch.Tensor): The template tensor to be used.
@@ -128,22 +128,32 @@ def distortion_probs_to_cuda_jit(
         _batch_indices (List[int]): List of batch indices.
         _beam_indices (List[int]): List of beam indices.
         _token_indices (List[int]): List of token indices.
-        _distortion_probs (List[float]): List of distortion probabilities.
+        _distortion_probs (torch.Tensor): The distortion probabilities to transfer.
 
     Returns:
-        torch.Tensor: The resulting tensor with distortion probabilities.
+        torch.Tensor: The transferred distortion probabilities tensor.
     """
-    # Initialize distortion probabilities tensor and mask positions where EOS is forced
-    if template_tensor.dtype == torch.float16:
-        MIN = -1e4
-    else:
-        MIN = -1e32
-    distortion_probs = template_tensor.masked_fill(force_eos[:, None], MIN).view(batch_size, num_beams, vocab_size)
-    
-    # Update distortion probabilities with the provided values
-    distortion_probs[_batch_indices, _beam_indices, _token_indices] = _distortion_probs
+    device = template_tensor.device
+    device_type = device.type
 
-    return distortion_probs.view(batch_beam_size, vocab_size)
+    if device_type == 'cuda':
+        distortion_probs = torch.zeros((batch_size, num_beams, vocab_size), device=device)
+    elif device_type == 'npu':
+        import torch_npu
+        distortion_probs = torch_npu.npu.zeros((batch_size, num_beams, vocab_size), device=device)
+    else:
+        distortion_probs = torch.zeros((batch_size, num_beams, vocab_size), device=device)
+
+    for i in range(len(_batch_indices)):
+        batch_idx = _batch_indices[i]
+        beam_idx = _beam_indices[i]
+        token_idx = _token_indices[i]
+        prob = _distortion_probs[i]
+        distortion_probs[batch_idx, beam_idx, token_idx] = prob
+
+    distortion_probs = distortion_probs.view(batch_beam_size, vocab_size)
+    distortion_probs = torch.where(force_eos.unsqueeze(-1), template_tensor, distortion_probs)
+    return distortion_probs
 
 def distortion_guided_beam_search(
     self,
