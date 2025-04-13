@@ -103,7 +103,7 @@ def get_distortion_probs(
 
     return batch_indices, beam_indices, token_indices, distortion_probs, original_token_lengths, force_eos
 
-@torch.jit.script
+#@torch.jit.script
 def distortion_probs_to_cuda_jit(
     template_tensor: torch.Tensor, 
     force_eos: torch.Tensor,
