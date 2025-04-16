@@ -140,7 +140,7 @@ def distortion_probs_to_cuda_jit(
         distortion_probs = torch.zeros((batch_size, num_beams, vocab_size), device=device)
     elif device_type == 'npu':
         import torch_npu
-        distortion_probs = torch_npu.npu.zeros((batch_size, num_beams, vocab_size), device=device)
+        distortion_probs = torch.zeros((batch_size, num_beams, vocab_size), device=device).to("npu")
     else:
         distortion_probs = torch.zeros((batch_size, num_beams, vocab_size), device=device)
 
