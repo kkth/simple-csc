@@ -45,9 +45,11 @@ EventSourceResponse.DEFAULT_PING_INTERVAL = 1000
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        torch.cuda.ipc_collect()
+    if torch.__package__ == 'torch' and torch.version.cuda:
+        import torch.cuda
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
     elif hasattr(torch, 'npu') and torch.npu.is_available():
         import torch_npu
         torch_npu.npu.empty_cache()
