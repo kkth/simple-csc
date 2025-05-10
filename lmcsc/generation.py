@@ -871,7 +871,10 @@ def process_reward_beam_search(
 
     decoder_prompt_len = input_ids.shape[-1]  # record the prompt length of decoder
 
+    round = 0
     while True:
+        round += 1
+        print(f"================> {round}")
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
             # The following logic allows an early break if all peers finished generating their sequence
