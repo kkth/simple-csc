@@ -2,7 +2,7 @@ from threading import Thread
 from typing import List, Tuple, Union
 from queue import Queue
 import torch
-
+from loguru import logger
 import yaml
 
 from lmcsc.generation import (
@@ -474,6 +474,7 @@ class LMCorrector:
                     beam_scorer=beam_scorer,
                     **model_kwargs,
                 )
+            logger.info("================>porcess reward output:{}", outputs)
 
             # Process and postprocess the outputs
             preds = self.lm_model.process_generated_outputs(outputs, contexts, prompt_split, n_beam_hyps_to_keep)
