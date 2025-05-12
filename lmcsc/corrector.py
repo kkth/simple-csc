@@ -4,6 +4,7 @@ from queue import Queue
 import torch
 from loguru import logger
 import yaml
+from lmcsc.common import print_tensor_info
 
 from lmcsc.generation import (
     process_reward_beam_search,
@@ -148,7 +149,7 @@ class LMCorrector:
 
         # Initialize token lengths
         self.model.token_length = (
-            torch.ones((self.model.vocab_size,)).to(self.model.device) * MIN
+           torch.ones((self.model.vocab_size,)).to(self.model.device) * MIN
         )
         for idx, l in self.model.transformation_type.token_length.items():
             if idx < self.model.vocab_size:
@@ -463,6 +464,7 @@ class LMCorrector:
         else:
             # Run the beam search generation
             with torch.no_grad():
+                print_tensor_info()
                 outputs = self.model.process_reward_beam_search(
                     observed_sequence_generator,
                     input_ids=context_input_ids,
