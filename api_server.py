@@ -75,7 +75,7 @@ class DeltaMessage(BaseModel):
 
 class CorrectionRequest(BaseModel):
     input: str
-    contexts: Optional[str] = None
+    contexts: Optional[List[str]] = None
     prompt_split: Optional[str] = "\n"
     max_tokens: Optional[int] = None
     stream: Optional[bool] = False

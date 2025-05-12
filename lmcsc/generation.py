@@ -3,6 +3,7 @@ import torch
 import torch.distributed as dist
 from typing import Tuple, Union, List, Optional
 from torch import nn
+from loguru import logger
 
 import warnings
 
@@ -875,6 +876,7 @@ def process_reward_beam_search(
     while True:
         round += 1
         print(f"================> {round}")
+        logger.info("============>current_len:{}", cur_len)
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
             # The following logic allows an early break if all peers finished generating their sequence
@@ -907,6 +909,7 @@ def process_reward_beam_search(
 
         ## Modification 1.0:
         observed_sequences = observed_sequence_generator.get_observed_sequences()
+        logger.info("============>observed_sequences:{}", observed_sequences)
         # pdb.set_trace()
         _batch_indices, _beam_indices, _token_indices, _distortion_probs, all_original_token_lengths, force_eos = (
             self.get_distortion_probs(observed_sequences, eos_token_id)
