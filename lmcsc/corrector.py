@@ -474,6 +474,8 @@ class LMCorrector:
                     prompted_attention_mask=prompted_context_attention_mask,
                     prompted_model_kwargs=prompted_model_kwargs,
                     beam_scorer=beam_scorer,
+                    output_scores=True,
+                    output_dict_in_generate=True,
                     **model_kwargs,
                 )
             logger.info("================>porcess reward output:{}", outputs)

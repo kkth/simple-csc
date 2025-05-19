@@ -52,4 +52,4 @@ models
 # gradio files
 flagged
 
-/simple_csc_env/
+simple-csc-venv/

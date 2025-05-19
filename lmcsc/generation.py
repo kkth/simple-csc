@@ -104,7 +104,7 @@ def get_distortion_probs(
 
     return batch_indices, beam_indices, token_indices, distortion_probs, original_token_lengths, force_eos
 
-@torch.jit.script
+#@torch.jit.script
 def distortion_probs_to_cuda_jit(
     template_tensor: torch.Tensor, 
     force_eos: torch.Tensor,
@@ -140,9 +140,15 @@ def distortion_probs_to_cuda_jit(
     else:
         MIN = -1e32
     distortion_probs = template_tensor.masked_fill(force_eos[:, None], MIN).view(batch_size, num_beams, vocab_size)
+
+    print(f"============>force_eos: {force_eos}")
+    print(f"============>MIN: {MIN}")
+    print(f"============>distortion_probsH: {distortion_probs[0,0,0:9]}")
     
     # Update distortion probabilities with the provided values
     distortion_probs[_batch_indices, _beam_indices, _token_indices] = _distortion_probs
+    print(f"============>distortion_probsH: {distortion_probs[_batch_indices[0],_batch_indices[0],_token_indices[0:9]]}")
+    print(f"============>_distortion_probs: {_distortion_probs[0:9]}")
 
     return distortion_probs.view(batch_beam_size, vocab_size)
 
@@ -271,6 +277,9 @@ def distortion_guided_beam_search(
 
     batch_size = len(beam_scorer._beam_hyps)
     num_beams = beam_scorer.num_beams
+
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
 
     ## Modification 0:
     ## Initialization
@@ -756,6 +765,9 @@ def process_reward_beam_search(
     batch_size = len(beam_scorer._beam_hyps)
     num_beams = beam_scorer.num_beams
 
+
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
     ## Modification 0:
     ## Initialization
 
@@ -864,6 +876,7 @@ def process_reward_beam_search(
 
     while True:
         logger.info("============>current_len:{}", cur_len)
+        logger.info("============>synced_gpus:{}", synced_gpus)
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
             # The following logic allows an early break if all peers finished generating their sequence
@@ -884,6 +897,7 @@ def process_reward_beam_search(
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
         )
+        print(f"============>outputs: {outputs}")
 
         if prompted_model is not None:
             prompted_model_inputs = self.prepare_inputs_for_generation(prompted_input_ids, **prompted_model_kwargs)
@@ -924,6 +938,17 @@ def process_reward_beam_search(
         # get the observed sequences and calculate the distortion probs
         force_eos = torch.tensor(force_eos, device=input_ids.device, dtype=torch.bool)
 
+        print(f"============>template_weight: {template_weight}")
+        print(f"============>_batch_indices: {_batch_indices}")
+        print(f"============>_beam_indices: {_beam_indices}")
+        print(f"============>_token_indices: {_token_indices}")
+        #print(f"============>_distortion_probs: {_distortion_probs}")
+        print(f"============>force_eos: {force_eos}")   
+        print(f"============>batch_size: {batch_size}")
+        print(f"============>num_beams: {num_beams}")
+        print(f"============>batch_beam_size: {batch_beam_size}")
+        print(f"============>vocab_size: {vocab_size}")
+
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -938,6 +963,7 @@ def process_reward_beam_search(
                 _distortion_probs, device=template_weight.device, dtype=template_weight.dtype
             )
         )
+        print(f"============>distortion_probs: {distortion_probs}")
 
         # calculate the length reward
         if self.alpha != 0:
@@ -959,6 +985,9 @@ def process_reward_beam_search(
         if prompted_model is None:
             prompted_next_token_scores = 0.0
 
+        noPureLM = os.getenv("NO_PURE_LM", "false").lower()
+        print(f"============>noPureLM: {noPureLM}")
+
         if os.getenv("NO_PURE_LM", "false").lower() == "true":
             next_token_scores = 0.0
             faithfulness_coefficient = 1.0
@@ -968,8 +997,14 @@ def process_reward_beam_search(
                 distortion_probs + length_reward
             )
         )
+        print(f"============>next_token_scores: {next_token_scores}")
+        print(f"============>distortion_probs: {distortion_probs}")
+        print(f"============>length_reward: {length_reward}")
+        print(f"============>faithfulness_coefficient: {faithfulness_coefficient}")
+        print(f"============>reward: {reward}")
 
         next_token_scores = prompted_next_token_scores + reward
+        print(f"============>next_token_scores: {next_token_scores}")
 
         ## END of modification
 
@@ -1051,6 +1086,17 @@ def process_reward_beam_search(
         )
         next_tokens = next_tokens.gather(-1, candidate_index)
         next_indices = next_indices.gather(-1, candidate_index)
+
+
+        # Decode next tokens for debugging
+        decoded_tokens = []
+        for batch_idx in range(batch_size):
+            batch_tokens = []
+            for token_id in next_tokens[batch_idx]:
+                token = tokenizer.decode(token_id)
+                batch_tokens.append(token)
+            decoded_tokens.append(batch_tokens)
+            print(f"Batch {batch_idx} next tokens: {batch_tokens}")
 
         # stateless
         beam_outputs = beam_scorer.process(
@@ -1135,6 +1181,7 @@ def process_reward_beam_search(
         # increase cur_len
         cur_len = cur_len + 1
 
+        print(f"===============>{beam_scorer._done}")
         ## Modification 3:
         ## Remove stopping_criteria
         if beam_scorer.is_done:

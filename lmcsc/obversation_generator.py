@@ -181,6 +181,7 @@ class NextObversationGenerator(BaseObversationGenerator):
                         token = src[step:].decode("utf-8")
                         observed_sequence = token[:n_observed_chars]
                     except:
+                        print(f"===========>Excppton src: {src}, step: {step}, n_observed_chars: {n_observed_chars}")
                         observed_sequence = src[
                             step : step + (n_observed_chars * 3)
                         ]
