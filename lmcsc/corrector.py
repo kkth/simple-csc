@@ -467,7 +467,6 @@ class LMCorrector:
         else:
             # Run the beam search generation
             with torch.no_grad():
-                print_tensor_info()
                 outputs = self.model.process_reward_beam_search(
                     observed_sequence_generator,
                     input_ids=context_input_ids,

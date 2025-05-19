@@ -144,14 +144,8 @@ def distortion_probs_to_cuda_jit(
         template_tensor
     ).view(batch_size, num_beams, vocab_size)
 
-    print(f"============>force_eos: {force_eos}")
-    print(f"============>MIN: {MIN}")
-    print(f"============>distortion_probsH: {distortion_probs[0,0,0:9]}")
-
     # Update distortion probabilities with the provided values
     distortion_probs[_batch_indices, _beam_indices, _token_indices] = _distortion_probs
-    print(f"============>distortion_probsH: {distortion_probs[_batch_indices[0],_batch_indices[0],_token_indices[0:9]]}")
-    print(f"============>_distortion_probs: {_distortion_probs[0:9]}")
 
     return distortion_probs.view(batch_beam_size, vocab_size)
 
@@ -875,12 +869,7 @@ def process_reward_beam_search(
 
     decoder_prompt_len = input_ids.shape[-1]  # record the prompt length of decoder
 
-    round = 0
     while True:
-        round += 1
-        print(f"================> {round}")
-        print(f"============>{cur_len}")
-        print(f"============>synced_gpus:{synced_gpus}")
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
             # The following logic allows an early break if all peers finished generating their sequence
@@ -901,7 +890,6 @@ def process_reward_beam_search(
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
         )    
-        print(f"============>outputs: {outputs}")
 
         if prompted_model is not None:
             prompted_model_inputs = self.prepare_inputs_for_generation(prompted_input_ids, **prompted_model_kwargs)
@@ -914,8 +902,6 @@ def process_reward_beam_search(
 
         ## Modification 1.0:
         observed_sequences = observed_sequence_generator.get_observed_sequences()
-        print(f"============>observed_sequences:{observed_sequences}")
-        # pdb.set_trace()
         _batch_indices, _beam_indices, _token_indices, _distortion_probs, all_original_token_lengths, force_eos = (
             self.get_distortion_probs(observed_sequences, eos_token_id)
         )
@@ -942,16 +928,6 @@ def process_reward_beam_search(
         # get the observed sequences and calculate the distortion probs
         force_eos = torch.tensor(force_eos, device=input_ids.device, dtype=torch.bool)
 
-        print(f"============>template_weight: {template_weight}") 
-        print(f"============>_batch_indices: {_batch_indices}")
-        print(f"============>_beam_indices: {_beam_indices}")
-        print(f"============>_token_indices: {_token_indices}")
-        #print(f"============>_distortion_probs: {_distortion_probs}")
-        print(f"============>force_eos: {force_eos}")   
-        print(f"============>batch_size: {batch_size}")
-        print(f"============>num_beams: {num_beams}")
-        print(f"============>batch_beam_size: {batch_beam_size}")
-        print(f"============>vocab_size: {vocab_size}")
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -966,7 +942,6 @@ def process_reward_beam_search(
                 _distortion_probs, device=template_weight.device, dtype=template_weight.dtype
             )
         )
-        print(f"============>distortion_probs: {distortion_probs}")
 
         # calculate the length reward
         if self.alpha != 0:
@@ -988,8 +963,6 @@ def process_reward_beam_search(
         if prompted_model is None:
             prompted_next_token_scores = 0.0
 
-        noPureLM = os.getenv("NO_PURE_LM", "false").lower()
-        print(f"============>noPureLM: {noPureLM}")
         if os.getenv("NO_PURE_LM", "false").lower() == "true":
             next_token_scores = 0.0
             faithfulness_coefficient = 1.0
@@ -999,14 +972,8 @@ def process_reward_beam_search(
                 distortion_probs + length_reward
             )
         )
-        print(f"============>next_token_scores: {next_token_scores}")
-        print(f"============>distortion_probs: {distortion_probs}")
-        print(f"============>length_reward: {length_reward}")
-        print(f"============>faithfulness_coefficient: {faithfulness_coefficient}")
-        print(f"============>reward: {reward}")
 
         next_token_scores = prompted_next_token_scores + reward
-        print(f"===============>next_token_scores:{next_token_scores}")
 
         ## END of modification
 
@@ -1183,7 +1150,6 @@ def process_reward_beam_search(
 
         ## Modification 3:
         ## Remove stopping_criteria
-        print(f"===============>{beam_scorer._done}")
         if beam_scorer.is_done:
             if not synced_gpus:
                 break
