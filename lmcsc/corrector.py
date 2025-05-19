@@ -4,8 +4,8 @@ from queue import Queue
 import torch
 import torch_npu
 from loguru import logger 
-import yaml
 from lmcsc.common import print_tensor_info
+import yaml
 
 from lmcsc.generation import (
     process_reward_beam_search,
