@@ -903,6 +903,8 @@ def process_reward_beam_search(
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
             )
+        end_time = time.time()
+        logger.info(f"= time 5.1.1= {end_time - start_time}")
 
         ## Modification 1.0:
         observed_sequences = observed_sequence_generator.get_observed_sequences()
@@ -911,6 +913,8 @@ def process_reward_beam_search(
         )
         related_token_indices = set(zip(_batch_indices, _beam_indices, _token_indices))
         ## END of modification
+        end_time = time.time()
+        logger.info(f"= time 5.1.2= {end_time - start_time}")
 
         if synced_gpus and this_peer_finished:
             cur_len = cur_len + 1
@@ -920,6 +924,8 @@ def process_reward_beam_search(
         next_token_scores = nn.functional.log_softmax(
             next_token_logits, dim=-1
         )  # (batch_size * num_beams, vocab_size)
+        end_time = time.time()
+        logger.info(f"= time 5.1.3= {end_time - start_time}")
 
         if prompted_model is not None:
             prompted_next_token_logits = prompted_outputs.logits[:, -1, :] / self.temperature
@@ -933,7 +939,7 @@ def process_reward_beam_search(
         force_eos = torch.tensor(force_eos, device=input_ids.device, dtype=torch.bool)
 
         end_time = time.time()
-        logger.info(f"= time 5.1= {end_time - start_time}")
+        logger.info(f"= time 5.2= {end_time - start_time}")
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -949,7 +955,7 @@ def process_reward_beam_search(
             )
         )
         end_time = time.time()
-        logger.info(f"= time 5.2= {end_time - start_time}")
+        logger.info(f"= time 5.3= {end_time - start_time}")
 
         # calculate the length reward
         if self.alpha != 0:
