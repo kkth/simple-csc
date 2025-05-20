@@ -399,6 +399,7 @@ class LMCorrector:
             [('完善农产品上行发展机制。',)]
 
         """
+        start_time = time.time()
         if n_beam is None:
             n_beam = self.n_beam
         if n_beam_hyps_to_keep is None:
@@ -480,6 +481,8 @@ class LMCorrector:
             # Process and postprocess the outputs
             preds = self.lm_model.process_generated_outputs(outputs, contexts, prompt_split, n_beam_hyps_to_keep)
             preds = self.postprocess(preds, src, changes, append_src_left_over=True)
+            end_time = time.time()
+            logger.info(f"= time 2=\n{end_time - start_time}")
 
             return preds
 

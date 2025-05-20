@@ -131,6 +131,7 @@ async def create_chat_completion(request: CorrectionRequest):
         output = next(predict_stream_generator)
         return EventSourceResponse(predict_stream_generator, media_type="text/event-stream")
     else:
+        start_time = time.time()
         # Here is the handling of stream = False
         response = corrector(**gen_params)[0][0]
 
@@ -144,6 +145,9 @@ async def create_chat_completion(request: CorrectionRequest):
             index=0,
             message=message,
         )
+
+        end_time = time.time()
+        logger.info(f"= time 1=\n{end_time - start_time}")
 
         return CorrectionResponse(
             model=args.model,

@@ -710,6 +710,7 @@ def process_reward_beam_search(
         `model.config.is_encoder_decoder=True`.
     """
 
+    start_time = time.time()
     # init values
     logits_processor = (
         logits_processor if logits_processor is not None else LogitsProcessorList()
@@ -870,6 +871,7 @@ def process_reward_beam_search(
     decoder_prompt_len = input_ids.shape[-1]  # record the prompt length of decoder
 
     while True:
+        start_time = time.time()
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
             # The following logic allows an early break if all peers finished generating their sequence
@@ -890,6 +892,8 @@ def process_reward_beam_search(
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
         )    
+        end_time = time.time()
+        logger.info(f"= time 5=\n{end_time - start_time}")
 
         if prompted_model is not None:
             prompted_model_inputs = self.prepare_inputs_for_generation(prompted_input_ids, **prompted_model_kwargs)
@@ -1075,6 +1079,8 @@ def process_reward_beam_search(
             beam_indices=beam_indices,
             decoder_prompt_len=decoder_prompt_len,
         )
+        end_time = time.time()
+        logger.info(f"= time 6=\n{end_time - start_time}")
 
         beam_scores = beam_outputs["next_beam_scores"]
         beam_next_tokens = beam_outputs["next_beam_tokens"]
@@ -1146,6 +1152,8 @@ def process_reward_beam_search(
 
         # increase cur_len
         cur_len = cur_len + 1
+        end_time = time.time()
+        logger.info(f"= time 4=\n{end_time - start_time}")
 
         ## Modification 3:
         ## Remove stopping_criteria
@@ -1173,6 +1181,9 @@ def process_reward_beam_search(
         streamer.put((beam_scorer, input_ids.cpu()))
         streamer.end()
     ## END of modification
+
+    end_time = time.time()
+    logger.info(f"= time 3=\n{end_time - start_time}")
 
     if return_dict_in_generate:
         if not output_scores:
