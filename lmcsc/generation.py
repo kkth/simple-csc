@@ -893,7 +893,7 @@ def process_reward_beam_search(
             output_hidden_states=output_hidden_states,
         )    
         end_time = time.time()
-        logger.info(f"= time 5=\n{end_time - start_time}")
+        logger.info(f"= time 5= {end_time - start_time}")
 
         if prompted_model is not None:
             prompted_model_inputs = self.prepare_inputs_for_generation(prompted_input_ids, **prompted_model_kwargs)
@@ -1067,6 +1067,8 @@ def process_reward_beam_search(
                 token = tokenizer.decode(token_id)
                 batch_tokens.append(token)
             decoded_tokens.append(batch_tokens)
+        end_time = time.time()
+        logger.info(f"= time 5.5= {end_time - start_time}")
 
         # stateless
         beam_outputs = beam_scorer.process(
@@ -1080,7 +1082,7 @@ def process_reward_beam_search(
             decoder_prompt_len=decoder_prompt_len,
         )
         end_time = time.time()
-        logger.info(f"= time 6=\n{end_time - start_time}")
+        logger.info(f"= time 6= {end_time - start_time}")
 
         beam_scores = beam_outputs["next_beam_scores"]
         beam_next_tokens = beam_outputs["next_beam_tokens"]
@@ -1153,7 +1155,7 @@ def process_reward_beam_search(
         # increase cur_len
         cur_len = cur_len + 1
         end_time = time.time()
-        logger.info(f"= time 4=\n{end_time - start_time}")
+        logger.info(f"= time 7= {end_time - start_time}")
 
         ## Modification 3:
         ## Remove stopping_criteria
