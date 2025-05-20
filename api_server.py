@@ -147,7 +147,7 @@ async def create_chat_completion(request: CorrectionRequest):
         )
 
         end_time = time.time()
-        logger.info(f"= time 1=\n{end_time - start_time}")
+        logger.info(f"= time 1={end_time - start_time}")
 
         return CorrectionResponse(
             model=args.model,

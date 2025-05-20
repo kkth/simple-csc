@@ -932,6 +932,8 @@ def process_reward_beam_search(
         # get the observed sequences and calculate the distortion probs
         force_eos = torch.tensor(force_eos, device=input_ids.device, dtype=torch.bool)
 
+        end_time = time.time()
+        logger.info(f"= time 5.1= {end_time - start_time}")
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -946,6 +948,8 @@ def process_reward_beam_search(
                 _distortion_probs, device=template_weight.device, dtype=template_weight.dtype
             )
         )
+        end_time = time.time()
+        logger.info(f"= time 5.2= {end_time - start_time}")
 
         # calculate the length reward
         if self.alpha != 0:
@@ -1178,6 +1182,9 @@ def process_reward_beam_search(
         decoder_prompt_len=decoder_prompt_len,
     )
 
+    end_time = time.time()
+    logger.info(f"= time 8= {end_time - reward_beam_search_time}")
+
     ## Modification 4:
     if streamer is not None:
         streamer.put((beam_scorer, input_ids.cpu()))
@@ -1185,7 +1192,7 @@ def process_reward_beam_search(
     ## END of modification
 
     end_time = time.time()
-    logger.info(f"= time 3=\n{end_time - reward_beam_search_time}")
+    logger.info(f"= time 9={end_time - reward_beam_search_time}")
 
     if return_dict_in_generate:
         if not output_scores:

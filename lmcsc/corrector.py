@@ -483,7 +483,7 @@ class LMCorrector:
             preds = self.lm_model.process_generated_outputs(outputs, contexts, prompt_split, n_beam_hyps_to_keep)
             preds = self.postprocess(preds, src, changes, append_src_left_over=True)
             end_time = time.time()
-            logger.info(f"= time 2=\n{end_time - start_time}")
+            logger.info(f"= time 2={end_time - start_time}")
 
             return preds
 
