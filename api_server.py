@@ -211,7 +211,8 @@ def predict_stream(gen_params):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-0.5B")
-    parser.add_argument("--prompted_model", type=str, default="Qwen/Qwen2.5-0.5B")
+    #parser.add_argument("--prompted_model", type=str, default="Qwen/Qwen2.5-0.5B")
+    parser.add_argument("--prompted_model", type=str, default=None)
     parser.add_argument("--config_path", type=str, default="configs/default_config.yaml")
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8000)
