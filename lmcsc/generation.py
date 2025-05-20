@@ -710,7 +710,7 @@ def process_reward_beam_search(
         `model.config.is_encoder_decoder=True`.
     """
 
-    start_time = time.time()
+    reward_beam_search_time = time.time()
     # init values
     logits_processor = (
         logits_processor if logits_processor is not None else LogitsProcessorList()
@@ -1183,7 +1183,7 @@ def process_reward_beam_search(
     ## END of modification
 
     end_time = time.time()
-    logger.info(f"= time 3=\n{end_time - start_time}")
+    logger.info(f"= time 3=\n{end_time - reward_beam_search_time}")
 
     if return_dict_in_generate:
         if not output_scores:
