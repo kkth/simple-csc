@@ -6,6 +6,7 @@ import torch_npu
 from loguru import logger 
 from lmcsc.common import print_tensor_info
 import yaml
+import time
 
 from lmcsc.generation import (
     process_reward_beam_search,
