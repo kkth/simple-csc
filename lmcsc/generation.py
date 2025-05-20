@@ -1063,7 +1063,6 @@ def process_reward_beam_search(
                 token = tokenizer.decode(token_id)
                 batch_tokens.append(token)
             decoded_tokens.append(batch_tokens)
-            print(f"Batch {batch_idx} next tokens: {batch_tokens}")
 
         # stateless
         beam_outputs = beam_scorer.process(

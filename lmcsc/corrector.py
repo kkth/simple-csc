@@ -416,7 +416,6 @@ class LMCorrector:
 
         # Preprocess the source texts
         processed_src, changes = self.preprocess(src, contexts)
-        logger.debug("================>1")
 
         # Prepare inputs for beam search generation
         (
@@ -449,7 +448,6 @@ class LMCorrector:
             verbose=False,
         )
 
-        logger.debug("================>2")
         if stream:
             # Run in streaming mode
             generation_kwargs = dict(
@@ -478,8 +476,6 @@ class LMCorrector:
                     beam_scorer=beam_scorer,
                     **model_kwargs,
                 )
-            logger.debug("================>3")
-            logger.info("================>porcess reward output:{}", outputs)
 
             # Process and postprocess the outputs
             preds = self.lm_model.process_generated_outputs(outputs, contexts, prompt_split, n_beam_hyps_to_keep)
