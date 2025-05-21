@@ -6,6 +6,7 @@ from torch import nn
 from loguru import logger
 import time
 import warnings
+from transformers import AutoTokenizer
 
 from transformers import (
     BeamScorer,
@@ -636,6 +637,7 @@ def process_reward_beam_search(
     observed_sequence_generator: BaseObversationGenerator,
     prompted_model: AutoModelForCausalLM,
     beam_scorer: BeamScorer,
+    tokenizer: AutoTokenizer,
     input_ids: torch.LongTensor = None,
     prompted_input_ids: torch.LongTensor = None,
     prompted_model_kwargs: dict = None,
@@ -761,8 +763,8 @@ def process_reward_beam_search(
     batch_size = len(beam_scorer._beam_hyps)
     num_beams = beam_scorer.num_beams
 
-    from transformers import AutoTokenizer
-    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
+    #from transformers import AutoTokenizer
+    #tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
 
     end_time = time.time()
     logger.info(f"= time 2.1= {end_time - reward_beam_search_time}")

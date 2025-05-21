@@ -470,6 +470,7 @@ class LMCorrector:
                 outputs = self.model.process_reward_beam_search(
                     observed_sequence_generator,
                     input_ids=context_input_ids,
+                    tokenizer=self.tokenizer,
                     attention_mask=context_attention_mask,
                     prompted_model=prompted_model,
                     prompted_input_ids=prompted_context_input_ids,
