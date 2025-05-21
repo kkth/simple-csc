@@ -1174,6 +1174,7 @@ def process_reward_beam_search(
         cur_len = cur_len + 1
         end_time = time.time()
         logger.info(f"= time 7= {end_time - start_time}")
+        time_7_measurements.append(end_time - start_time)
 
         ## Modification 3:
         ## Remove stopping_criteria
@@ -1183,6 +1184,10 @@ def process_reward_beam_search(
             else:
                 this_peer_finished = True
         ## END of modification
+    
+    # Calculate sum of time_7_measurements
+    total_time_7 = sum(time_7_measurements)
+    logger.info(f"Total time 7 across all iterations: {total_time_7}")
 
     sequence_outputs = beam_scorer.finalize(
         input_ids,
