@@ -764,6 +764,9 @@ def process_reward_beam_search(
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
 
+    end_time = time.time()
+    logger.info(f"= time 2.1= {end_time - reward_beam_search_time}")
+
     ## Modification 0:
     ## Initialization
 
@@ -1170,7 +1173,6 @@ def process_reward_beam_search(
         # increase cur_len
         cur_len = cur_len + 1
         end_time = time.time()
-        time_7_measurements.append(end_time - start_time)
         logger.info(f"= time 7= {end_time - start_time}")
 
         ## Modification 3:
@@ -1181,10 +1183,6 @@ def process_reward_beam_search(
             else:
                 this_peer_finished = True
         ## END of modification
-
-    #sum of time 7 measurements
-    time_7_sum = sum(time_7_measurements)
-    logger.info(f"= time 7 sum= {time_7_sum}")
 
     sequence_outputs = beam_scorer.finalize(
         input_ids,
