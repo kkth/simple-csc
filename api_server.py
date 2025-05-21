@@ -65,7 +65,7 @@ app.add_middleware(
 )
 
 class CorrectionMessage(BaseModel):
-    content: str = None
+    content: List[str] = None
 
 
 class DeltaMessage(BaseModel):
@@ -74,7 +74,7 @@ class DeltaMessage(BaseModel):
 # for CorrectionRequest
 
 class CorrectionRequest(BaseModel):
-    input: str
+    input: List[str]
     contexts: Optional[List[str]] = None
     prompt_split: Optional[str] = "\n"
     max_tokens: Optional[int] = None
@@ -133,7 +133,8 @@ async def create_chat_completion(request: CorrectionRequest):
     else:
         start_time = time.time()
         # Here is the handling of stream = False
-        response = corrector(**gen_params)[0][0]
+        origin_response = corrector(**gen_params)
+        response = [item[0] for item in origin_response]
 
         message = CorrectionMessage(
             content=response,
