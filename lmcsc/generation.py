@@ -966,8 +966,8 @@ def process_reward_beam_search(
                 _distortion_probs, device=template_weight.device, dtype=template_weight.dtype
             )
         )
-        #end_time = time.time()
-        #logger.info(f"= time 5.3= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.3= {end_time - start_time}")
 
         # calculate the length reward
         if self.alpha != 0:
