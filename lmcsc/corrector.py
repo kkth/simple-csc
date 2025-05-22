@@ -87,7 +87,7 @@ class LMCorrector:
 
         # Load the language model
         if isinstance(model, str):
-            self.lm_model = AutoLMModel.from_pretrained(model, *args, **kwargs).to("npu")
+            self.lm_model = AutoLMModel.from_pretrained(model, *args, **kwargs)
         else:
             self.lm_model = model
 

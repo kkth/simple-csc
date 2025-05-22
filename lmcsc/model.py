@@ -53,6 +53,9 @@ class LMModel:
             attn_implementation=attn_implementation,
             trust_remote_code=trust_remote_code,
         )
+
+        self.model.to("npu")  # 显式迁移到 NPU
+
         self.tokenizer = AutoTokenizer.from_pretrained(
             model,
             trust_remote_code=trust_remote_code
