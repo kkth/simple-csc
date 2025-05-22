@@ -103,10 +103,13 @@ class LMModel:
         self.set_convert_ids_to_tokens()
 
         self.tokenizer.padding_side = "left"
-        self.model.probs_template = torch.ones((self.model.vocab_size,), dtype=self.model.dtype).to(
-            self.model.device
-        )
-        print(f"--------------->model.device: {self.model.device}")
+
+        model_device = next(self.model.parameters()).device
+        self.model.probs_template = torch.ones( (self.model.vocab_size,), dtype=self.model.dtype, device=model_device)
+
+        #self.model.probs_template = torch.ones((self.model.vocab_size,), dtype=self.model.dtype).to(
+        #    self.model.device
+        #)
 
     def get_model_kwargs(self):
         """
