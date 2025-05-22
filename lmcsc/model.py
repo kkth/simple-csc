@@ -106,6 +106,7 @@ class LMModel:
         self.model.probs_template = torch.ones((self.model.vocab_size,), dtype=self.model.dtype).to(
             self.model.device
         )
+        print(f"--------------->model.device: {self.model.device}")
 
     def get_model_kwargs(self):
         """
