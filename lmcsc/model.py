@@ -48,7 +48,7 @@ class LMModel:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             model,
-            device_map=device_map,
+#            device_map=device_map,
             torch_dtype=torch_dtype,
             attn_implementation=attn_implementation,
             trust_remote_code=trust_remote_code,
