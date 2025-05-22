@@ -763,6 +763,8 @@ def process_reward_beam_search(
     batch_size = len(beam_scorer._beam_hyps)
     num_beams = beam_scorer.num_beams
 
+    logger.info(f"==========> batch_size= {batch_size}, num_beams= {num_beams}")
+
     #from transformers import AutoTokenizer
     #tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
 
