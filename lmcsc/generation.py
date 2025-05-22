@@ -766,8 +766,8 @@ def process_reward_beam_search(
     #from transformers import AutoTokenizer
     #tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B", trust_remote_code=True)
 
-    #end_time = time.time()
-    #logger.info(f"= time 2.1= {end_time - reward_beam_search_time}")
+    end_time = time.time()
+    logger.info(f"= time 2.1= {end_time - reward_beam_search_time}")
 
     ## Modification 0:
     ## Initialization
@@ -874,8 +874,8 @@ def process_reward_beam_search(
     this_peer_finished = False  # used by synced_gpus only
 
     decoder_prompt_len = input_ids.shape[-1]  # record the prompt length of decoder
-    #end_time = time.time()
-    #logger.info(f"= time 3= {end_time - reward_beam_search_time}")
+    end_time = time.time()
+    logger.info(f"= time 3= {end_time - reward_beam_search_time}")
 
 
     # Initialize list to store time 7 measurements
@@ -902,8 +902,8 @@ def process_reward_beam_search(
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
         )    
-        #end_time = time.time()
-        #logger.info(f"= time 5= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5= {end_time - start_time}")
 
         if prompted_model is not None:
             prompted_model_inputs = self.prepare_inputs_for_generation(prompted_input_ids, **prompted_model_kwargs)
@@ -913,8 +913,8 @@ def process_reward_beam_search(
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
             )
-        #end_time = time.time()
-        #logger.info(f"= time 5.1.1= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.1.1= {end_time - start_time}")
 
         ## Modification 1.0:
         observed_sequences = observed_sequence_generator.get_observed_sequences()
@@ -923,8 +923,8 @@ def process_reward_beam_search(
         )
         related_token_indices = set(zip(_batch_indices, _beam_indices, _token_indices))
         ## END of modification
-        #end_time = time.time()
-        #logger.info(f"= time 5.1.2= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.1.2= {end_time - start_time}")
 
         if synced_gpus and this_peer_finished:
             cur_len = cur_len + 1
@@ -934,8 +934,8 @@ def process_reward_beam_search(
         next_token_scores = nn.functional.log_softmax(
             next_token_logits, dim=-1
         )  # (batch_size * num_beams, vocab_size)
-        #end_time = time.time()
-        #logger.info(f"= time 5.1.3= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.1.3= {end_time - start_time}")
 
         if prompted_model is not None:
             prompted_next_token_logits = prompted_outputs.logits[:, -1, :] / self.temperature
@@ -948,8 +948,8 @@ def process_reward_beam_search(
         # get the observed sequences and calculate the distortion probs
         force_eos = torch.tensor(force_eos, device=input_ids.device, dtype=torch.bool)
 
-        #end_time = time.time()
-        #logger.info(f"= time 5.2= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.2= {end_time - start_time}")
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -1087,8 +1087,8 @@ def process_reward_beam_search(
                 token = tokenizer.decode(token_id)
                 batch_tokens.append(token)
             decoded_tokens.append(batch_tokens)
-        #end_time = time.time()
-        #logger.info(f"= time 5.5= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 5.5= {end_time - start_time}")
 
         # stateless
         beam_outputs = beam_scorer.process(
@@ -1101,8 +1101,8 @@ def process_reward_beam_search(
             beam_indices=beam_indices,
             decoder_prompt_len=decoder_prompt_len,
         )
-        #end_time = time.time()
-        #logger.info(f"= time 6= {end_time - start_time}")
+        end_time = time.time()
+        logger.info(f"= time 6= {end_time - start_time}")
 
         beam_scores = beam_outputs["next_beam_scores"]
         beam_next_tokens = beam_outputs["next_beam_tokens"]
@@ -1175,8 +1175,8 @@ def process_reward_beam_search(
         # increase cur_len
         cur_len = cur_len + 1
         #end_time = time.time()
-        #logger.info(f"= time 7= {end_time - start_time}")
-        #time_7_measurements.append(end_time - start_time)
+        logger.info(f"= time 7= {end_time - start_time}")
+        time_7_measurements.append(end_time - start_time)
 
         ## Modification 3:
         ## Remove stopping_criteria
@@ -1203,8 +1203,8 @@ def process_reward_beam_search(
         decoder_prompt_len=decoder_prompt_len,
     )
 
-    #end_time = time.time()
-    #logger.info(f"= time 8= {end_time - reward_beam_search_time}")
+    end_time = time.time()
+    logger.info(f"= time 8= {end_time - reward_beam_search_time}")
 
     ## Modification 4:
     if streamer is not None:
@@ -1212,8 +1212,8 @@ def process_reward_beam_search(
         streamer.end()
     ## END of modification
 
-    #end_time = time.time()
-    #logger.info(f"= time 9={end_time - reward_beam_search_time}")
+    end_time = time.time()
+    logger.info(f"= time 9={end_time - reward_beam_search_time}")
 
     if return_dict_in_generate:
         if not output_scores:
