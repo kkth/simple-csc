@@ -231,4 +231,4 @@ if __name__ == "__main__":
         torch_dtype=torch.bfloat16 if args.bf16 else torch.float16,
     )
     logger.info(f"Model {args.model} loaded successfully")
-    uvicorn.run(app, host=args.host, port=args.port, workers=args.workers, reload=args.debug)
+    uvicorn.run("api_server:app", host=args.host, port=args.port, workers=args.workers, reload=args.debug)
