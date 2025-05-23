@@ -920,6 +920,10 @@ def process_reward_beam_search(
 
         ## Modification 1.0:
         observed_sequences = observed_sequence_generator.get_observed_sequences()
+
+        end_time = time.time()
+        logger.info(f"= time 5.1.1.1= {end_time - start_time}")
+
         _batch_indices, _beam_indices, _token_indices, _distortion_probs, all_original_token_lengths, force_eos = (
             self.get_distortion_probs(observed_sequences, eos_token_id)
         )
