@@ -157,6 +157,10 @@ def distortion_probs_to_cuda_jit(
         template_tensor
     ).view(batch_size, num_beams, vocab_size)
 
+    print("distortion_probs shape:", distortion_probs.shape)
+    print("distortion_probs dtype:", distortion_probs.dtype)
+    print("distortion_probs device:", distortion_probs.device)
+
     # Update distortion probabilities with the provided values
     distortion_probs[_batch_indices, _beam_indices, _token_indices] = _distortion_probs
 
@@ -895,7 +899,11 @@ def process_reward_beam_search(
     # Initialize list to store time 7 measurements
     time_7_measurements = []
     jit_time_measurements = []
+    iteration = -1 
     while True:
+        iteration += 1
+        logger.info(f"==========> {iteration} iteration")
+
         start_time = time.time()
         if synced_gpus:
             # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
