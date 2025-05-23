@@ -137,6 +137,9 @@ def distortion_probs_to_cuda_jit(
     """
     # Define MIN value based on dtype
     MIN = -1e4 if template_tensor.dtype == torch.float16 else -1e32
+    print(f"========>template_tensor.device: {template_tensor.device}")
+    print(f"========>force_eos.device: {force_eos.device}")
+    print(f"========>_distortion_probs.device: {_distortion_probs.device}")
 
     # Use torch.where to replace masked_fill
     distortion_probs = torch.where(
