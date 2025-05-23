@@ -894,6 +894,7 @@ def process_reward_beam_search(
 
     # Initialize list to store time 7 measurements
     time_7_measurements = []
+    jit_time_measurements = []
     while True:
         start_time = time.time()
         if synced_gpus:
@@ -968,6 +969,8 @@ def process_reward_beam_search(
 
         end_time = time.time()
         logger.info(f"= time 5.2= {end_time - start_time}")
+
+        jit_start_time = time.time()
         distortion_probs = distortion_probs_to_cuda_jit(
             template_weight,
             force_eos,
@@ -982,6 +985,10 @@ def process_reward_beam_search(
                 _distortion_probs, device=template_weight.device, dtype=template_weight.dtype
             )
         )
+        jit_end_time = time.time()
+        jit_time_measurements.append(jit_end_time - jit_start_time)
+        logger.info(f"= time jit= {jit_end_time - jit_start_time}")
+
         end_time = time.time()
         logger.info(f"= time 5.3= {end_time - start_time}")
 
@@ -1208,6 +1215,8 @@ def process_reward_beam_search(
     # Calculate sum of time_7_measurements
     total_time_7 = sum(time_7_measurements)
     logger.info(f"Total time 7 across all iterations: {total_time_7}")
+    total_jit_time = sum(jit_time_measurements)
+    logger.info(f"Total time jit across all iterations: {total_jit_time}")
 
     sequence_outputs = beam_scorer.finalize(
         input_ids,
